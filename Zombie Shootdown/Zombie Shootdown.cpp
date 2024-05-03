@@ -10,7 +10,7 @@ using namespace std;
 using namespace sf; 
 using namespace sfp;
 
-const float KB_SPEED = 0.2;
+const float KB_SPEED = 0.5;
 
 void LoadTex(Texture& tex, string filename) {
     if (!tex.loadFromFile(filename)) {
@@ -20,26 +20,30 @@ void LoadTex(Texture& tex, string filename) {
 
 void MoveMan(PhysicsSprite& man, int elapsedMS) {
     if (Keyboard::isKeyPressed(Keyboard::Right)) {
-        Vector2f newPos(man.getCenter()); 
+        Vector2f newPos(man.getCenter());
         newPos.x = newPos.x + (KB_SPEED * elapsedMS);
-        man.setCenter(newPos); 
+        newPos.y -= 0.5; 
+        man.setCenter(newPos);
     }
     if (Keyboard::isKeyPressed(Keyboard::Left)) {
-        Vector2f newPos(man.getCenter()); 
+        Vector2f newPos(man.getCenter());
         newPos.x = newPos.x - (KB_SPEED * elapsedMS);
-        man.setCenter(newPos); 
+        newPos.y -= 0.5; 
+        man.setCenter(newPos);
     }
     if (Keyboard::isKeyPressed(Keyboard::Down)) {
-        Vector2f newPos(man.getCenter()); 
+        Vector2f newPos(man.getCenter());
         newPos.y = newPos.y + (KB_SPEED * elapsedMS);
-        man.setCenter(newPos); 
+        newPos.x -= 0.5; 
+        man.setCenter(newPos);
     }
     if (Keyboard::isKeyPressed(Keyboard::Up)) {
-        Vector2f newPos(man.getCenter()); 
+        Vector2f newPos(man.getCenter());
         newPos.y = newPos.y - (KB_SPEED * elapsedMS);
-        man.setCenter(newPos); 
+        newPos.x -= 0.5; 
+        man.setCenter(newPos);
     }
-} 
+}
 
 int main()
 {
