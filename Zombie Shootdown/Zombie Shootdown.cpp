@@ -57,7 +57,7 @@ int main()
     LoadTex(cbowTex, "images/man.png");
     man.setTexture(cbowTex); 
     Vector2f sz = man.getSize(); 
-    man.setCenter(Vector2f(400, 
+    man.setCenter(Vector2f(800, 
         600 - (sz.y / 2)));
 
     PhysicsSprite bullet; 
@@ -67,8 +67,8 @@ int main()
     bool drawingbullet(false);
 
     PhysicsRectangle top;
-    top.setSize(Vector2f(800, 10));
-    top.setCenter(Vector2f(400, 5));
+    top.setSize(Vector2f(1600, 20));
+    top.setCenter(Vector2f(800, 10));
     top.setStatic(true);
     world.AddPhysicsBody(top);
 
@@ -80,8 +80,8 @@ int main()
         zombie.setTexture(redTex); 
         int x = 50 + ((700 / 5) * i);
         Vector2f sz = zombie.getSize(); 
-        zombie.setCenter(Vector2f(x, 20 + (sz.y / 2))); 
-        zombie.setVelocity(Vector2f(0.25, 0)); 
+        zombie.setCenter(Vector2f(x, 60 + (sz.y / 2))); 
+        zombie.setVelocity(Vector2f(0.01, 0)); 
         world.AddPhysicsBody(zombie);
         zombie.onCollision =
             [&drawingbullet, &world, &bullet, &zombie, &zombies, &score]
@@ -130,7 +130,7 @@ int main()
                 !drawingbullet) {
                 drawingbullet = true;
                 bullet.setCenter(man.getCenter()); 
-                bullet.setVelocity(Vector2f(0, -1));
+                bullet.setVelocity(Vector2f(1, 0));
                 world.AddPhysicsBody(bullet);
                 bullets -= 1;
             }
@@ -147,12 +147,12 @@ int main()
             scoreText.setString(to_string(score));
             FloatRect textBounds = scoreText.getGlobalBounds();
             scoreText.setPosition(
-                Vector2f(790 - textBounds.width, 590 - textBounds.height));
+                Vector2f(1580 - textBounds.width, 1180 - textBounds.height));
             window.draw(scoreText);
             bulletCountText.setString(to_string(bullets));
             textBounds = bulletCountText.getGlobalBounds();
             bulletCountText.setPosition(
-                Vector2f(10, 590 - textBounds.height));
+                Vector2f(10, 1180 - textBounds.height));
             window.draw(bulletCountText); 
 
             window.display();
@@ -164,8 +164,8 @@ int main()
             zombie.setTexture(redTex); 
             int x = 50 + ((700 / 5));
             Vector2f sz = zombie.getSize(); 
-            zombie.setCenter(Vector2f(-100, 20 + (sz.y / 2))); 
-            zombie.setVelocity(Vector2f(0.25, 0)); 
+            zombie.setCenter(Vector2f(2000, 20 + (sz.y / 2))); 
+            zombie.setVelocity(Vector2f(-0.25, 0)); 
             world.AddPhysicsBody(zombie); 
             zombie.onCollision =
                 [&drawingbullet, &world, &bullet, &zombie, &zombies, &score]
@@ -185,8 +185,8 @@ int main()
     gameOverText.setString("GAME OVER");
     FloatRect textBounds = gameOverText.getGlobalBounds();
     gameOverText.setPosition(Vector2f(
-        400 - (textBounds.width / 2),
-        300 - (textBounds.height / 2)
+        800 - (textBounds.width / 2),
+        600 - (textBounds.height / 2)
     ));
     window.draw(gameOverText);
     window.display();
