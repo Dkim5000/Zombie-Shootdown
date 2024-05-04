@@ -63,7 +63,7 @@ int main()
     Texture bulletTex;
     LoadTex(bulletTex, "images/bullet.png");
     bullet.setTexture(bulletTex);
-    bool drawingArrow(false);
+    bool drawingbullet(false);
 
     PhysicsRectangle top;
     top.setSize(Vector2f(800, 10));
@@ -71,29 +71,121 @@ int main()
     top.setStatic(true);
     world.AddPhysicsBody(top);
 
+    Texture redTex;
+    LoadTex(redTex, "images/zombie.png");
+    PhysicsShapeList<PhysicsSprite> zombies;
+    for (int i(0); i < 6; i++) {
+        PhysicsSprite& zombie = zombies.Create();
+        zombie.setTexture(redTex);
+        int x = 50 + ((700 / 5) * i);
+        Vector2f sz = zombie.getSize();
+        zombie.setCenter(Vector2f(x, 20 + (sz.y / 2)));
+        zombie.setVelocity(Vector2f(0.25, 0));
+        world.AddPhysicsBody(zombie);
+        zombie.onCollision =
+            [&drawingbullet, &world, &bullet, &zombie, &zombies, &score]
+            (PhysicsBodyCollisionResult result) {
+            if (result.object2 == bullet) {
+                drawingbullet = false;
+                world.RemovePhysicsBody(bullet);
+                world.RemovePhysicsBody(zombie);
+                zombies.QueueRemove(zombie);
+                score += 10;
+            }
+            };
+    }
+
+    top.onCollision = [&drawingbullet, &world, &bullet]
+    (PhysicsBodyCollisionResult result) {
+        drawingbullet = false;
+        world.RemovePhysicsBody(bullet);
+        };
+
+    Text scoreText;
+    Font font;
+    if (!font.loadFromFile("comic.ttf")) {
+        cout << "Couldn't load font sans.ttf" << endl;
+        exit(1);
+    }
+    scoreText.setFont(font);
+    Text arrowCountText;
+    arrowCountText.setFont(font);
+
     Clock clock;
     Time lastTime(clock.getElapsedTime());
     Time currentTime(lastTime);
 
-    long duckMS(0);
-    while (drawingArrow) {
+    long zombieMS(0);
+    while (drawingbullet) {
         currentTime = clock.getElapsedTime();
         Time deltaTime = currentTime - lastTime;
         long deltaMS = deltaTime.asMilliseconds();
-        duckMS = duckMS + deltaMS;
-    }
-    while (true) {
-        currentTime = clock.getElapsedTime();
-        Time deltaTime = currentTime - lastTime;
-        long deltaMS = deltaTime.asMilliseconds();
-        duckMS = duckMS + deltaMS;
+        zombieMS = zombieMS + deltaMS;
         if (deltaMS > 9) {
             lastTime = currentTime;
             world.UpdatePhysics(deltaMS);
             MoveMan(man, deltaMS);
+            if (Keyboard::isKeyPressed(Keyboard::Space) &&
+                !drawingbullet) {
+                drawingbullet = true;
+                bullet.setCenter(man.getCenter());
+                bullet.setVelocity(Vector2f(-1, 0));
+                world.AddPhysicsBody(bullet);
+            }
         }
+
         window.clear();
-        window.draw(man); 
-        window.display(); 
+        if (drawingbullet) {
+            window.draw(bullet);
+        }
+        zombies.DoRemovals();
+        for (PhysicsShape& zombie : zombies) {
+            window.draw((PhysicsSprite&)zombie);
+        }
+        window.draw(man);
+        scoreText.setString(to_string(score));
+        FloatRect textBounds = scoreText.getGlobalBounds();
+        scoreText.setPosition(
+            Vector2f(790 - textBounds.width, 590 - textBounds.height));
+        window.draw(scoreText);
+        window.display();
+        zombies.DoRemovals();
     }
-} 
+    if (zombieMS > 300) { 
+        zombieMS = 0;
+        PhysicsSprite& zombie = zombies.Create();
+        zombie.setTexture(redTex); 
+        int x = 50 + ((700 / 5));
+        Vector2f sz = zombie.getSize(); 
+        zombie.setCenter(Vector2f(-100, 20 + (sz.y / 2))); 
+        zombie.setVelocity(Vector2f(0.25, 0)); 
+        world.AddPhysicsBody(zombie); 
+        zombie.onCollision =
+            [&drawingbullet, &world, &bullet, &zombie, &zombies, &score]
+            (PhysicsBodyCollisionResult result) {
+            if (result.object2 == bullet) {
+                drawingbullet = false;
+                world.RemovePhysicsBody(bullet);
+                world.RemovePhysicsBody(zombie); 
+                zombies.QueueRemove(zombie);
+                score += 10;
+            }
+            };
+        }
+    }
+    Text gameOverText; 
+    gameOverText.setFont(font); 
+    gameOverText.setString("GAME OVER");
+    FloatRect textBounds = gameOverText.getGlobalBounds();
+    gameOverText.setPosition(Vector2f(
+        400 - (textBounds.width / 2),
+        300 - (textBounds.height / 2)
+    ));
+    window.draw(gameOverText);
+    window.display();
+    while (true) {
+        if (Keyboard::isKeyPressed(Keyboard::Space)) {
+            exit(0);
+        }
+    }
+}
